@@ -5,23 +5,27 @@ interface InputComponentProps {
     type: string
     placeholder: string
     value: string
-    setValue: (str: string) => void
+    setValue: (e: React.ChangeEvent<any>) => void
+    handleBlur?: (e: React.FocusEvent<any>) => void
     error: string | undefined
+    id?: string
 }
 
 const InputComponent: React.FC<InputComponentProps> = ({
-    className, type, placeholder, value, setValue, error,
+    className, type, placeholder, value, setValue, error, handleBlur, id
 }) => {
     return <div className={className}>
         <input
             className={classNames(
-                "transition duration-600 px-3 py-2 w-full bg-gray-900  rounded-full  focus:bg-gray-800 hover:bg-gray-700",
-                { 'bg-red-600 hover:bg-red-500 ': error },
+                "transition duration-600 text-green-500 px-3 py-2 w-full bg-gray-900  rounded-full  focus:bg-gray-800 hover:bg-gray-700",
+                { 'bg-red-600 text-gray-900 hover:bg-red-500': error },
             )}
             placeholder={placeholder}
             type={type}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={setValue}
+            onBlur={handleBlur}
+            id={id}
         />
 
         <small className="font-medium text-red-600">{error}</small>

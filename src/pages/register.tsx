@@ -1,46 +1,54 @@
-import React, { FormEvent, useState } from 'react';
+import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-
-import InputComponent from '../components/inputComponent';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import axios from 'axios';
 
-const Registesr = () => {
-    const [firstName, setFirstName] = useState<string>('');
-    const [lastName, setLastName] = useState<string>('');
-    const [email, setEmail] = useState<string>('');
-    const [username, setUsername] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [confirmPassword, setConfirmPassword] = useState<string>('');
-    const [agreement, setAgreement] = useState<boolean>(false);
-    const [errors, setErrors] = useState<any>({});
+import InputComponent from '../components/inputComponent';
+import { MyError } from '../types/myError';
 
+const Registesr = () => {
+    const [errors, setErrors] = useState<MyError>({});
     const router = useRouter();
 
-    const submitForm = async (e: FormEvent) => {
-        e.preventDefault();
+    const { handleChange, handleSubmit, values, errors: fErrors, touched, handleBlur } = useFormik({
+        initialValues: {
+            firstName: '',
+            lastName: '',
+            email: '',
+            username: '',
+            password: '',
+            confirmPassword: '',
+            agreement: false
+        },
+        validationSchema: Yup.object({
+            firstName: Yup.string().min(2, 'First Name must be at leat 2 chars').required('Required Field'),
+            lastName: Yup.string().min(2, 'Last Name must be at leat 2 chars').required('Required Field'),
+            username: Yup.string().min(2, 'Username must be at leat 2 chars').required('Required Field'),
+            password: Yup.string().min(8, 'Password must be at leat 8 chars').required('Required Field'),
+            email: Yup.string().min(2, 'Username must be at leat 2 chars').email().required('Required Field'),
+            confirmPassword: Yup.string().required().oneOf([Yup.ref('password'), null], 'Passwords must match'),
+        }),
+        onSubmit: async ({ firstName, lastName, email, username, password, agreement }) => {
+            try {
+                const res = await axios.post('/auth/register', {
+                    firstName,
+                    lastName,
+                    email,
+                    username,
+                    password
+                });
 
-        if (password != confirmPassword) {
-            setErrors({ confirmPassword: 'Passwords must match ' });
+                console.log(res.data);
+                router.push('/')
+            } catch (e) {
+                console.log(e);
+                setErrors(e.response.data);
+            }
         }
-
-        try {
-            const res = await axios.post('/auth/register', {
-                firstName,
-                lastName,
-                email,
-                username,
-                password
-            });
-
-            console.log(res.data);
-            router.push('/')
-        } catch (e) {
-            console.log(e);
-            setErrors(e.response.data);
-        }
-    };
+    });
 
     return (
         <div className="min-w-screen min-h-screen bg-gray-900 flex items-center justify-center px-5 py-5">
@@ -51,7 +59,7 @@ const Registesr = () => {
                 <div className="md:flex w-full">
                     <div className="hidden md:block w-1/2 bg-gray-500 py-10 px-10">
                         <svg id="Layer_1"
-                            enable-background="new 0 0 512 512"
+                            enableBackground="new 0 0 512 512"
                             height="400"
                             viewBox="0 0 512 512"
                             width="512"
@@ -68,79 +76,90 @@ const Registesr = () => {
                             <p>Enter your information to Register</p>
                         </div>
                         <div className="w-90 ml-8">
-                            <form onSubmit={submitForm}>
+                            <form onSubmit={handleSubmit}>
                                 <InputComponent
                                     className="mb-2"
                                     type="text"
-                                    value={firstName}
-                                    setValue={setFirstName}
+                                    value={values.firstName}
+                                    setValue={handleChange}
+                                    handleBlur={handleBlur}
                                     placeholder="First Name ..."
-                                    error={errors.firstName}
+                                    error={
+                                        errors.firstName ? errors.firstName : null || touched.firstName && fErrors.firstName ? fErrors.firstName : undefined
+                                    }
+                                    id="firstName"
 
                                 />
                                 <InputComponent
                                     className="mb-2"
                                     type="text"
-                                    value={lastName}
-                                    setValue={setLastName}
+                                    value={values.lastName}
+                                    setValue={handleChange}
+                                    handleBlur={handleBlur}
                                     placeholder="Last Name ..."
-                                    error={errors.lastName}
-
+                                    error={errors.lastName ? errors.lastName : null || touched.lastName && fErrors.lastName ? fErrors.lastName : undefined}
+                                    id="lastName"
                                 />
 
                                 <InputComponent
                                     className="mb-2"
                                     type="username"
-                                    value={email}
-                                    setValue={setEmail}
+                                    value={values.email}
+                                    setValue={handleChange}
+                                    handleBlur={handleBlur}
                                     placeholder="Email ..."
-                                    error={errors.email}
+                                    error={errors.email ? errors.email : null || touched.email && fErrors.email ? fErrors.email : undefined}
+                                    id="email"
 
                                 />
 
                                 <InputComponent
                                     className="mb-2"
                                     type="username"
-                                    value={username}
-                                    setValue={setUsername}
+                                    value={values.username}
+                                    setValue={handleChange}
+                                    handleBlur={handleBlur}
                                     placeholder="Username ..."
-                                    error={errors.username}
-
+                                    error={
+                                        errors.username ? errors.username : null || touched.username && fErrors.username ? fErrors.username : undefined}
+                                    id="username"
                                 />
 
                                 <InputComponent
                                     className="mb-2"
                                     type="password"
-                                    value={password}
-                                    setValue={setPassword}
+                                    value={values.password}
+                                    setValue={handleChange}
+                                    handleBlur={handleBlur}
                                     placeholder="password"
-                                    error={errors.password}
-
+                                    error={errors.password ? errors.password : null || touched.password && fErrors.password ? fErrors.password : undefined}
+                                    id="password"
                                 />
 
                                 <InputComponent
                                     className="mb-2"
                                     type="password"
-                                    value={confirmPassword}
-                                    setValue={setConfirmPassword}
+                                    value={values.confirmPassword}
+                                    setValue={handleChange}
+                                    handleBlur={handleBlur}
                                     placeholder="confirm password"
-                                    error={errors.confirmPassword}
-
+                                    error={touched.confirmPassword && fErrors.confirmPassword ? fErrors.confirmPassword : undefined}
+                                    id="confirmPassword"
                                 />
 
                                 <input
                                     type="checkbox"
                                     className="m-1 cursor-pointer"
                                     id="agreement"
-                                    checked={agreement}
-                                    onChange={(e) => setAgreement(e.target.checked)}
+                                    checked={values.agreement}
+                                    onChange={handleChange}
                                 />
 
                                 <label htmlFor="agreement" className="cursor-pointer text-sm text-gray-800">
                                     I wanna subscribe to your news letter
                                 </label>
 
-                                <button className="transition duration-600 w-full rounded-full  py-2 m-2 text-xs font-bold text-white uppercase bg-blue-800 border border-blue-500 hover:bg-green-500">
+                                <button type="submit" className="transition duration-600 w-full rounded-full  py-2 m-2 text-xs font-bold text-white uppercase bg-blue-800 border border-blue-500 hover:bg-green-500">
                                     Register
                                 </button>
                             </form>
