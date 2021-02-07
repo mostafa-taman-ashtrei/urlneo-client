@@ -1,14 +1,42 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import axios from 'axios';
+
 import InputComponent from '../components/inputComponent';
+import { MyError } from '../types/myError';
 
 const Login: React.FC = () => {
-    const [username, setUsername] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [errors, setErrors] = useState<any>({});
+    const [errors, setErrors] = useState<MyError>({});
+    const router = useRouter();
 
-    const submitForm = () => { };
+    const { handleChange, handleSubmit, values, errors: fErrors, touched, handleBlur } = useFormik({
+        initialValues: {
+            username: '',
+            password: '',
+        },
+        validationSchema: Yup.object({
+            username: Yup.string().required('Required Field'),
+            password: Yup.string().required('Required Field'),
+        }),
+        onSubmit: async ({ username, password, }) => {
+            try {
+                const res = await axios.post('/auth/login', {
+                    username,
+                    password
+                });
+
+                console.log(res.data);
+                router.push('/')
+            } catch (e) {
+                console.log(e);
+                setErrors(e.response.data);
+            }
+        }
+    });
 
     return (
         <div className="min-w-screen min-h-screen bg-gray-900 flex items-center justify-center px-5 py-5">
@@ -19,7 +47,7 @@ const Login: React.FC = () => {
                 <div className="md:flex w-full">
                     <div className="hidden md:block w-1/2 bg-gray-500 py-10 px-10">
                         <svg id="Layer_1"
-                            enable-background="new 0 0 512 512"
+                            enableBackground="new 0 0 512 512"
                             height="400"
                             viewBox="0 0 512 512"
                             width="512"
@@ -36,26 +64,31 @@ const Login: React.FC = () => {
                             <p>Enter your information to login</p>
                         </div>
                         <div className="w-90 ml-8">
-                            <form onSubmit={submitForm}>
+                            <form onSubmit={handleSubmit}>
                                 <InputComponent
                                     className="mb-2"
                                     type="username"
-                                    value={username}
-                                    setValue={setUsername}
+                                    value={values.username}
+                                    setValue={handleChange}
+                                    handleBlur={handleBlur}
                                     placeholder="Username ..."
-                                    error={errors.username}
+                                    error={
+                                        errors.username ? errors.username : null || touched.username && fErrors.username ? fErrors.username : undefined}
+                                    id="username"
                                 />
 
                                 <InputComponent
                                     className="mb-2"
                                     type="password"
-                                    value={password}
-                                    setValue={setPassword}
+                                    value={values.password}
+                                    setValue={handleChange}
+                                    handleBlur={handleBlur}
                                     placeholder="password"
-                                    error={errors.password}
+                                    error={errors.password ? errors.password : null || touched.password && fErrors.password ? fErrors.password : undefined}
+                                    id="password"
                                 />
 
-                                <button className="transition duration-600 w-full rounded-full  py-2 mb-4 text-xs font-bold text-white uppercase bg-blue-800 border border-blue-500 hover:bg-green-500">
+                                <button type="submit" className=" transition duration-600 w-full rounded-full py-2 mb-4 text-xs font-bold text-white uppercase bg-blue-800 border border-blue-500 hover:bg-green-500">
                                     Login
                                 </button>
                             </form>
@@ -70,7 +103,7 @@ const Login: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 
