@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 import InputComponent from '../components/inputComponent';
+import axios from 'axios';
 
 const Registesr = () => {
     const [firstName, setFirstName] = useState<string>('');
-    const [lasttName, setLastName] = useState<string>('');
+    const [lastName, setLastName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -14,7 +16,31 @@ const Registesr = () => {
     const [agreement, setAgreement] = useState<boolean>(false);
     const [errors, setErrors] = useState<any>({});
 
-    const submitForm = () => { };
+    const router = useRouter();
+
+    const submitForm = async (e: FormEvent) => {
+        e.preventDefault();
+
+        if (password != confirmPassword) {
+            setErrors({ confirmPassword: 'Passwords must match ' });
+        }
+
+        try {
+            const res = await axios.post('/auth/register', {
+                firstName,
+                lastName,
+                email,
+                username,
+                password
+            });
+
+            console.log(res.data);
+            router.push('/')
+        } catch (e) {
+            console.log(e);
+            setErrors(e.response.data);
+        }
+    };
 
     return (
         <div className="min-w-screen min-h-screen bg-gray-900 flex items-center justify-center px-5 py-5">
@@ -49,16 +75,16 @@ const Registesr = () => {
                                     value={firstName}
                                     setValue={setFirstName}
                                     placeholder="First Name ..."
-                                    error={errors.FirstName}
+                                    error={errors.firstName}
 
                                 />
                                 <InputComponent
                                     className="mb-2"
                                     type="text"
-                                    value={lasttName}
+                                    value={lastName}
                                     setValue={setLastName}
                                     placeholder="Last Name ..."
-                                    error={errors.LastName}
+                                    error={errors.lastName}
 
                                 />
 
@@ -98,7 +124,7 @@ const Registesr = () => {
                                     value={confirmPassword}
                                     setValue={setConfirmPassword}
                                     placeholder="confirm password"
-                                    error={errors.password}
+                                    error={errors.confirmPassword}
 
                                 />
 
