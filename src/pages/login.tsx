@@ -8,10 +8,14 @@ import axios from 'axios';
 
 import InputComponent from '../components/inputComponent';
 import { MyError } from '../types/myError';
+import { useAuthDispatch, useAuthState } from '../context/authContext';
 
 const Login: React.FC = () => {
     const [errors, setErrors] = useState<MyError>({});
     const router = useRouter();
+
+    const { isAuth } = useAuthState();
+    const dispatch = useAuthDispatch();
 
     const {
         handleChange, handleSubmit, values, errors: fErrors, touched, handleBlur,
@@ -31,7 +35,7 @@ const Login: React.FC = () => {
                     password,
                 });
 
-                console.log(res.data);
+                dispatch('LOGIN', res.data);
                 router.push('/');
             } catch (e) {
                 console.log(e);
@@ -39,6 +43,8 @@ const Login: React.FC = () => {
             }
         },
     });
+
+    if (isAuth) router.push('/');
 
     return (
         <div className="min-w-screen min-h-screen bg-gray-900 flex items-center justify-center px-5 py-5">

@@ -8,10 +8,14 @@ import axios from 'axios';
 
 import InputComponent from '../components/inputComponent';
 import { MyError } from '../types/myError';
+import { useAuthState } from '../context/authContext';
 
 const Registesr = () => {
     const [errors, setErrors] = useState<MyError>({});
     const router = useRouter();
+    const { isAuth } = useAuthState();
+
+    if (isAuth) router.push('/');
 
     const {
         handleChange, handleSubmit, values, errors: fErrors, touched, handleBlur,
