@@ -7,11 +7,11 @@ import * as Yup from 'yup';
 import axios from 'axios';
 
 import InputComponent from '../components/inputComponent';
-import { MyError } from '../types/myError';
+import { MyAuthError } from '../types/myError';
 import { useAuthDispatch, useAuthState } from '../context/authContext';
 
 const Login: React.FC = () => {
-    const [errors, setErrors] = useState<MyError>({});
+    const [errors, setErrors] = useState<MyAuthError>({});
     const router = useRouter();
 
     const { isAuth } = useAuthState();

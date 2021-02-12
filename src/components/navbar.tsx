@@ -6,13 +6,10 @@ import { useRouter } from 'next/router';
 
 import { useAuthState, useAuthDispatch } from '../context/authContext';
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
     const { isAuth, loading } = useAuthState();
     const dispatch = useAuthDispatch();
     const router = useRouter();
-
-    console.log(loading);
-    console.log('isAuth', isAuth);
 
     const handleLogout = async (): Promise<void> => {
         try {
@@ -66,7 +63,9 @@ const Navbar = () => {
             </div>
             <div className="w-full pb-2 md:flex md:items-center md:justify-between md:pb-0 ">
                 <div className="flex flex-col px-2 md:flex-row">
-                    <a href="#" className="py-2 px-2 text-white rounded hover:bg-gray-900 hover:text-gray-300 hover:font-medium md:mx-2">About</a>
+                    <Link href="/newUrl">
+                        <a className="py-2 px-2 text-white rounded hover:bg-gray-900 hover:text-gray-300 hover:font-medium md:mx-2">new</a>
+                    </Link>
                     <a href="#" className="py-2 px-2 text-white rounded hover:bg-gray-900 hover:text-gray-300 hover:font-medium md:mx-2">Contact</a>
                 </div>
                 <div className=" flex">
